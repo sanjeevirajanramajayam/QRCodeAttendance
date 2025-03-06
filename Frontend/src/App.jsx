@@ -65,7 +65,7 @@ function App() {
 
       {/* Generate QR Code */}
       <div>
-        <h2>Generate QR Code for Student</h2>
+        <h2>Generate QR Code for Bannari Amman Students</h2>
         <input 
           type="text" 
           value={studentId} 
