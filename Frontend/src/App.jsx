@@ -10,9 +10,10 @@ function App() {
 
   // Handle scanning of QR Code
   const handleScan = (data) => {
-    if (data && data.text) {
-      setScanResult(data.text);  // Assuming data.text is the QR code value
-      markAttendance(data.text);
+    if (data) {
+      setScanResult(data[0].rawValue);  // Assuming data.text is the QR code value
+      markAttendance(data[0].rawValue);
+      console.log(data[0].rawValue)
     }
   };
 
@@ -24,6 +25,7 @@ function App() {
   // Mark attendance by sending the studentId to the backend
   const markAttendance = async (id) => {
     try {
+      console.log(id)   
       const response = await axios.post('http://localhost:5000/mark-attendance', { studentId: id });
       setAttendanceStatus(response.data.message);
     } catch (error) {
@@ -51,9 +53,10 @@ function App() {
         <h2>Scan QR Code to Mark Attendance</h2>
         <Scanner
           delay={300}
-          style={{ width: '100%' }}
+          style={{ width: '20%' }}
           onError={handleError}
-          onScan={handleScan}
+          onScan={(result) => handleScan(result)}
+          classNames={{onOff: false}}
         />
       </div>
 
