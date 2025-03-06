@@ -1,17 +1,18 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import QRReader from 'react-qr-reader';
+import { Scanner } from '@yudiel/react-qr-scanner';
 
 function App() {
   const [scanResult, setScanResult] = useState(null);
   const [studentId, setStudentId] = useState('');
   const [attendanceStatus, setAttendanceStatus] = useState('');
+  const [qrImage, setQrImage] = useState(null); // State to store the QR image data
 
   // Handle scanning of QR Code
   const handleScan = (data) => {
-    if (data) {
-      setScanResult(data);
-      markAttendance(data);
+    if (data && data.text) {
+      setScanResult(data.text);  // Assuming data.text is the QR code value
+      markAttendance(data.text);
     }
   };
 
@@ -26,7 +27,7 @@ function App() {
       const response = await axios.post('http://localhost:5000/mark-attendance', { studentId: id });
       setAttendanceStatus(response.data.message);
     } catch (error) {
-      console.error("Error marking attendance", error);
+      console.error('Error marking attendance', error);
     }
   };
 
@@ -34,10 +35,10 @@ function App() {
   const generateQRCode = async () => {
     try {
       const response = await axios.get(`http://localhost:5000/generate-qr/${studentId}`);
-      const qrImage = response.data;
-      document.getElementById('qr-container').innerHTML = qrImage;
+      const qrImage = response.data.qrCode; // Get the base64-encoded QR code
+      setQrImage(qrImage); // Store the QR code image data
     } catch (error) {
-      console.error("Error generating QR code", error);
+      console.error('Error generating QR code', error);
     }
   };
 
@@ -48,7 +49,7 @@ function App() {
       {/* QR Scanner */}
       <div>
         <h2>Scan QR Code to Mark Attendance</h2>
-        <QRReader
+        <Scanner
           delay={300}
           style={{ width: '100%' }}
           onError={handleError}
@@ -65,17 +66,23 @@ function App() {
 
       {/* Generate QR Code */}
       <div>
-        <h2>Generate QR Code for Bannari Amman Students</h2>
-        <input 
-          type="text" 
-          value={studentId} 
-          onChange={(e) => setStudentId(e.target.value)} 
-          placeholder="Enter Student ID" 
+        <h2>Generate QR Code for Student</h2>
+        <input
+          type="text"
+          value={studentId}
+          onChange={(e) => setStudentId(e.target.value)}
+          placeholder="Enter Student ID"
         />
         <button onClick={generateQRCode}>Generate QR Code</button>
       </div>
 
-      <div id="qr-container"></div>
+      {/* Display generated QR Code */}
+      {qrImage && (
+        <div>
+          <h3>Generated QR Code:</h3>
+          <img src={qrImage} alt="Generated QR Code" />
+        </div>
+      )}
     </div>
   );
 }
