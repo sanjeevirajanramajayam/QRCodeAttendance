@@ -4,14 +4,13 @@ import { Scanner } from "@yudiel/react-qr-scanner";
 import AppRoute from "./Routes/AppRoute";
 function App() {
   const [scanResult, setScanResult] = useState(null);
-  const [studentId, setStudentId] = useState("");
-  const [attendanceStatus, setAttendanceStatus] = useState("");
+  const [studentId, setStudentId] = useState('');
+  const [attendanceStatus, setAttendanceStatus] = useState('');
   const [qrImage, setQrImage] = useState(null); // State to store the QR image data
 
-  // Handle scanning of QR Code
   const handleScan = (data) => {
     if (data) {
-      setScanResult(data[0].rawValue); // Assuming data.text is the QR code value
+      setScanResult(data[0].rawValue);  // Assuming data.text is the QR code value
       markAttendance(data[0].rawValue);
       console.log(data[0].rawValue);
     }
@@ -22,26 +21,19 @@ function App() {
     console.error(err);
   };
 
-  // Mark attendance by sending the studentId to the backend
   const markAttendance = async (id) => {
     try {
-      console.log(id);
-      const response = await axios.post(
-        "http://localhost:5000/mark-attendance",
-        { studentId: id }
-      );
+      console.log(id)   
+      const response = await axios.post('http://localhost:5000/mark-attendance', { studentId: id });
       setAttendanceStatus(response.data.message);
     } catch (error) {
       console.error("Error marking attendance", error);
     }
   };
 
-  // Generate QR Code for a student
   const generateQRCode = async () => {
     try {
-      const response = await axios.get(
-        `http://localhost:5000/generate-qr/${studentId}`
-      );
+      const response = await axios.get(http://localhost:5000/generate-qr/${studentId});
       const qrImage = response.data.qrCode; // Get the base64-encoded QR code
       setQrImage(qrImage); // Store the QR code image data
     } catch (error) {
@@ -51,20 +43,20 @@ function App() {
 
   return (
     <>
-      <div className="App">
-        <h1>QR Code Attendance System</h1>
-
-        {/* QR Scanner */}
-        <div>
-          <h2>Scan QR Code to Mark Attendance</h2>
-          <Scanner
-            delay={300}
-            style={{ width: "20%" }}
-            onError={handleError}
-            onScan={(result) => handleScan(result)}
-            classNames={{ onOff: false }}
-          />
-        </div>
+    <div className="App">
+      <h1>QR Code Attendance System</h1>
+      
+      {/* QR Scanner */}
+      <div>
+        <h2>Scan QR Code to Mark Attendance</h2>
+        <Scanner
+          delay={300}
+          style={{ width: '20%' }}
+          onError={handleError}
+          onScan={(result) => handleScan(result)}
+          classNames={{onOff: false}}
+        />
+      </div>
 
         {scanResult && (
           <div>
