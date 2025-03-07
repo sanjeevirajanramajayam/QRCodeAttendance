@@ -9,6 +9,7 @@ function AppRoute() {
       {/* <Route path="/student" element={<StudentHome />} /> */}
       <Route path="/" element={<Login />} />
       <Route path="/studenthome" element={<StudentHome/>}/> 
+      <Route path="/main" element={<MainPage />} />
     </Routes>
   );
 }
