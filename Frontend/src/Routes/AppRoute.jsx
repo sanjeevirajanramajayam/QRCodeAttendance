@@ -4,6 +4,7 @@ import Login from '../pages/Login'
 import MainPage from '../components/MainPage/MainPage'
 function AppRoute() {
   return (
+    
     <Routes>
       <Route path="/login" element={<Login/>} />
       <Route path="/" element={<MainPage/>} />

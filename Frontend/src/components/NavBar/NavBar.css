@@ -1,0 +1,83 @@
+/* Navbar Styling */
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 5%;
+    background: linear-gradient(to right, #333, #777);
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    position: fixed;
+    width: 100%;
+    top: 0;
+    left: 0;
+    z-index: 1000;
+  }
+  
+  /* Navigation List */
+  .header ul {
+    list-style: none;
+    display: flex;
+    gap: 25px;
+    margin: 0;
+    padding: 0;
+  }
+  
+  /* Navigation Items */
+  .header ul li {
+    cursor: pointer;
+    padding: 12px 15px;
+    color: #fff;
+    font-size: 16px;
+    font-weight: 500;
+    transition: all 0.3s ease-in-out;
+    position: relative;
+  }
+  
+  /* Hover Effect */
+  .header ul li:hover {
+    color: #f8d210;
+    transform: translateY(-2px);
+  }
+  
+  /* Active Item */
+  .header ul li.active {
+    color: #f8d210;
+    font-weight: bold;
+    border-bottom: 3px solid #f8d210;
+  }
+  
+  /* Responsive Design */
+  @media (max-width: 768px) {
+    .header {
+      flex-direction: column;
+      text-align: center;
+      padding: 10px 5%;
+    }
+  
+    .header ul {
+      flex-direction: column;
+      gap: 15px;
+      padding-top: 10px;
+    }
+  
+    .header ul li {
+      padding: 10px 0;
+      font-size: 18px;
+    }
+  }
+  
+  /* Mobile-Friendly Menu */
+  @media (max-width: 480px) {
+    .header {
+      padding: 10px 3%;
+    }
+  
+    .header ul {
+      gap: 12px;
+    }
+  
+    .header ul li {
+      font-size: 16px;
+    }
+  }
+  
