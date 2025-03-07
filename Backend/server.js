@@ -155,6 +155,28 @@ app.post('/mark-attendance', (req, res) => {
     });
 });
 
+app.post("/login", (req, res) => {
+    const { username, password } = req.body;
+    if (!username || !password) {
+      return res.status(400).json({
+        message: "Username and Password are required",
+      });
+    }
+  
+    const query = "SELECT role from users where username = ? and password = ?";
+  
+    db.query(query, [username, password], (err, result) => {
+      if (err) {
+        console.error("Error marking attendance:", err);
+        return res.status(500).json({
+          message: "Failed to mark attendance",
+        });
+      }
+  
+      res.status(200).json({ result });
+    });
+  });
+
 
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
