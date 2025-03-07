@@ -6,12 +6,12 @@ function App() {
   const [scanResult, setScanResult] = useState(null);
   const [studentId, setStudentId] = useState('');
   const [attendanceStatus, setAttendanceStatus] = useState('');
-  const [qrImage, setQrImage] = useState(null); // State to store the QR image data
+  const [qrImage, setQrImage] = useState(null);
+  const [stop, setStop] = useState(false);
 
-  // Handle scanning of QR Code
   const handleScan = (data) => {
     if (data) {
-      setScanResult(data[0].rawValue);  // Assuming data.text is the QR code value
+      setScanResult(data[0].rawValue);
       markAttendance(data[0].rawValue);
       console.log(data[0].rawValue)
     }
@@ -22,10 +22,9 @@ function App() {
     console.error(err);
   };
 
-  // Mark attendance by sending the studentId to the backend
   const markAttendance = async (id) => {
     try {
-      console.log(id)   
+      console.log(id)
       const response = await axios.post('http://localhost:5000/mark-attendance', { studentId: id });
       setAttendanceStatus(response.data.message);
     } catch (error) {
@@ -33,12 +32,11 @@ function App() {
     }
   };
 
-  // Generate QR Code for a student
   const generateQRCode = async () => {
     try {
       const response = await axios.get(`http://localhost:5000/generate-qr/${studentId}`);
-      const qrImage = response.data.qrCode; // Get the base64-encoded QR code
-      setQrImage(qrImage); // Store the QR code image data
+      const qrImage = response.data.qrCode;
+      setQrImage(qrImage);
     } catch (error) {
       console.error('Error generating QR code', error);
     }
@@ -47,18 +45,25 @@ function App() {
   return (
     <div className="App">
       <h1>QR Code Attendance System</h1>
-      
-      {/* QR Scanner */}
+
       <div>
         <h2>Scan QR Code to Mark Attendance</h2>
+        {/* <div style={{width: '20%', height: '20%'}}> */}
+        <button
+          onClick={() => setStop((val) => !val)}
+        >
+          {stop ? "Start" : "Stop"}
+        </button>
         <Scanner
           delay={300}
-          style={{ width: '20%' }}
           onError={handleError}
           onScan={(result) => handleScan(result)}
-          classNames={{onOff: false}}
+          stopDecoding={stop}
+          styles={{ container: { width: '30%' } }}
         />
+
       </div>
+      {/* </div> */}
 
       {scanResult && (
         <div>
