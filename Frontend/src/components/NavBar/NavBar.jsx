@@ -5,9 +5,9 @@ function NavBar() {
     <nav className="header">
       <ul>
         <li>HOME</li>
-        <li>EMPLOYEE</li>
-        <li>JOBS</li>
-        <li>USER</li>
+        <li>STAFF</li>
+        <li>STUDENT</li>
+        <li>ADMIN</li>
         <li>LOGIN</li>
       </ul>
     </nav>
