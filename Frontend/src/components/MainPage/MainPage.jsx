@@ -50,13 +50,13 @@ function MainPage() {
                 {/* QR Scanner */}
                 <div>
                     <h2>Scan QR Code to Mark Attendance</h2>
-                    <Scanner
+                    {/* <Scanner
                         delay={300}
                         style={{ width: '20%' }}
                         onError={handleError}
                         onScan={(result) => handleScan(result)}
                         classNames={{ onOff: false }}
-                    />
+                    /> */}
                 </div>
 
                 {scanResult && (
