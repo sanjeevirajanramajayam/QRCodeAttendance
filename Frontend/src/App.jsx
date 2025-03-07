@@ -33,7 +33,9 @@ function App() {
 
   const generateQRCode = async () => {
     try {
-      const response = await axios.get(`http://localhost:5000/generate-qr/${studentId}`);
+      const response = await axios.get(
+        `http://localhost:5000/generate-qr/${studentId}`
+      );
       const qrImage = response.data.qrCode; // Get the base64-encoded QR code
       setQrImage(qrImage); // Store the QR code image data
     } catch (error) {
