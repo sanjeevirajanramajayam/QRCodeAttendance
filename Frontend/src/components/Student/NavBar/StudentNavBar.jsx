@@ -29,7 +29,7 @@ function StudentNavBar() {
   return (
     <AppBar position="static">
       <StyledToolbar>
-        <Typography>Admin Dashboard</Typography>
+        <Typography>Student Dashboard</Typography>
         <Content>
           <Button variant="filled" onClick={() => navigate("/student-home")}>
             Scan QR Code
