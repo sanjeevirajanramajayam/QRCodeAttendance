@@ -27,56 +27,8 @@ db.connect((err) => {
   console.log("Connected to MySQL database");
 });
 
-app.get("/generate-qr/:studentId", async (req, res) => {
-  const {
-    studentId
-  } = req.params;
-  try {
-    const qrCodeDataUrl = await QRCode.toDataURL(studentId);
-    res.json({
-      qrCode: qrCodeDataUrl,
-    });
-  } catch (error) {
-    console.error("Error generating QR code", error);
-    res.status(500).send("Error generating QR code");
-  }
-});
-
-// app.post('/mark-attendance', (req, res) => {
-//     const {
-//         studentId
-//     } = req.body;
-//     const timestamp = new Date();
-
-//     if (!studentId) {
-//         return res.status(400).json({
-//             message: 'Student ID is required'
-//         });
-//     }
-
-//     const query = 'INSERT INTO attendance (student_id, timestamp) VALUES (?, ?)';
-
-//     db.query(query, [studentId, timestamp], (err, result) => {
-//         if (err) {
-//             console.error('Error marking attendance:', err);
-//             return res.status(500).json({
-//                 message: 'Failed to mark attendance'
-//             });
-//         }
-
-//         res.status(200).json({
-//             message: 'Attendance marked successfully',
-//             studentId,
-//             timestamp
-//         });
-//     });
-// });
-
 app.post("/create-session", async (req, res) => {
-  const {
-    facultyId,
-    courseName
-  } = req.body;
+  const { facultyId, courseName } = req.body;
   const sessionId = `session-${Date.now()}`;
 
   try {
@@ -111,10 +63,7 @@ app.post("/create-session", async (req, res) => {
 });
 
 app.post("/mark-attendance", (req, res) => {
-  const {
-    sessionId,
-    studentId
-  } = req.body;
+  const { sessionId, studentId } = req.body;
   const timestamp = new Date();
 
   if (!sessionId || !studentId) {
@@ -163,10 +112,7 @@ app.post("/mark-attendance", (req, res) => {
 });
 
 app.post("/login", (req, res) => {
-  const {
-    username,
-    password
-  } = req.body;
+  const { username, password } = req.body;
   if (!username || !password) {
     return res.status(400).json({
       message: "Username and Password are required",
@@ -185,17 +131,15 @@ app.post("/login", (req, res) => {
     }
 
     res.status(200).json({
-      result
+      result,
     });
   });
 });
 
 app.post("/get-attendence", (req, res) => {
-  const {
-    id
-  } = req.body;
+  const { id } = req.body;
 
-  const selectQuery = "SELECT * FROM users WHERE id = ?"
+  const selectQuery = "SELECT * FROM users WHERE id = ?";
 
   db.query(selectQuery, [id], (err, selectResults) => {
     if (err) {
@@ -221,14 +165,12 @@ app.post("/get-attendence", (req, res) => {
         });
       }
 
-      const sessionIds = attendanceResults.map(record => record.session_id);
-      const timestamps = attendanceResults.map(record => record.timestamp);
+      const sessionIds = attendanceResults.map((record) => record.session_id);
+      const timestamps = attendanceResults.map((record) => record.timestamp);
 
-      console.log(attendanceResults);
-      console.log(sessionIds);
-      console.log(timestamps);
-
-      const sessionQuery = `SELECT * FROM sessions WHERE session_id IN (${sessionIds.map(() => '?').join(',')})`;
+      const sessionQuery = `SELECT * FROM sessions WHERE session_id IN (${sessionIds
+        .map(() => "?")
+        .join(",")})`;
 
       db.query(sessionQuery, sessionIds, (err, sessionResults) => {
         if (err) {
@@ -241,7 +183,7 @@ app.post("/get-attendence", (req, res) => {
         res.status(200).json({
           sessions: sessionResults,
           timestamps,
-          username: selectResults[0].username
+          username: selectResults[0].username,
         });
       });
     });
@@ -251,63 +193,67 @@ app.post("/get-attendence", (req, res) => {
 app.post("/get-students-by-session", (req, res) => {
   const { session_id } = req.body;
 
-  const attendanceQuery = "SELECT * FROM attendance WHERE session_id = ?";
+  const sessionQuery =
+    "SELECT faculty_id, course_code FROM sessions WHERE id = ?";
 
-  db.query(attendanceQuery, [session_id], (err, attendanceResults) => {
+  db.query(sessionQuery, [session_id], (err, sessionResult) => {
     if (err) {
-      console.error("Error fetching attendance:", err);
-      return res.status(500).json({
-        message: "Failed to fetch attendance",
-      });
+      console.log(err);
+      return res
+        .status(500)
+        .json({ message: "Failed to fetch session details" });
     }
 
-    if (attendanceResults.length === 0) {
-      return res.status(404).json({
-        message: "No attendance records found for this session",
-      });
+    if (sessionResult.length === 0) {
+      return res.status(404).json({ message: "Session not found" });
     }
 
-    const studentIds = attendanceResults.map(record => record.student_id);
+    const { faculty_id, course_code } = sessionResult[0];
 
-    const userQuery = "SELECT id, username FROM users WHERE id IN (?)";
+    const attendanceQuery = "SELECT * FROM attendance WHERE session_id = ?";
 
-    db.query(userQuery, [studentIds], (err, userResults) => {
+    db.query(attendanceQuery, [session_id], (err, attendanceResults) => {
       if (err) {
-        console.error("Error fetching student details:", err);
-        return res.status(500).json({
-          message: "Failed to fetch student details",
-        });
+        return res.status(500).json({ message: "Failed to fetch attendance" });
       }
 
-      if (userResults.length === 0) {
-        return res.status(404).json({
-          message: "No student records found for this session",
-        });
+      if (attendanceResults.length === 0) {
+        return res
+          .status(404)
+          .json({ message: "No attendance records found for this session" });
       }
 
-       
-      const sessionDetails = attendanceResults.map((attendance, index) => {
-        return {
-          session_id: attendance.session_id,
-          faculty_id: "F001", 
-          course_name: "Course 101",
-          qr_code_url: "data:image/png;base64, ...",  
-        };
+      const studentIds = attendanceResults.map((record) => record.student_id);
+
+      const userQuery = "SELECT id, username FROM users WHERE id IN (?)";
+
+      db.query(userQuery, [studentIds], (err, userResults) => {
+        if (err) {
+          return res
+            .status(500)
+            .json({ message: "Failed to fetch student details" });
+        }
+
+        if (userResults.length === 0) {
+          return res
+            .status(404)
+            .json({ message: "No student records found for this session" });
+        }
+
+        const studentMap = {};
+        userResults.forEach((user) => {
+          studentMap[user.id] = user.username;
+        });
+
+        const response = attendanceResults.map((attendance) => ({
+          student_name: studentMap[attendance.student_id] || "Unknown",
+          timestamp: attendance.timestamp,
+          course_code: course_code,
+          faculty_id: faculty_id,
+        }));
+
+        res.status(200).json(response);
       });
-
-     
-      const response = {
-        sessions: sessionDetails,
-        timestamps: attendanceResults.map(att => att.timestamp),
-        username: userResults[0].username, 
-      };
-
-      const studentNames = userResults.map(user => user.username);
-      response.sessions.forEach((session, index) => {
-        session.students = studentNames;
-      });
-
-      res.status(200).json(response);
     });
   });
 });
