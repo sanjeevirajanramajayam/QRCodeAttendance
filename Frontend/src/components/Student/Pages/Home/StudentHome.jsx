@@ -21,8 +21,8 @@ function StudentHome() {
 
   const handleScan = (data) => {
     if (data) {
-      setScanResult(data[0].rawValue); // The QR code data contains the sessionId or studentId
-      markAttendance(data[0].rawValue); // Assuming data contains the sessionId
+      setScanResult(data[0].rawValue); 
+      markAttendance(data[0].rawValue); 
     }
   };
 
@@ -85,7 +85,6 @@ function StudentHome() {
               />
             </Box>
 
-            {/* Attendance Confirmation */}
             {scanResult && (
               <Alert
                 severity="success"
