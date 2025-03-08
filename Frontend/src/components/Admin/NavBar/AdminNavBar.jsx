@@ -31,8 +31,22 @@ function AdminNavBar() {
       <StyledToolbar>
         <Typography>Admin Dashboard</Typography>
         <Content>
-          <Button variant="filled" onClick={() => {navigate('/admin')}}>Create QR Code</Button>
-          {/* <Button variant="filled" onClick={() => {navigate('/admin-attendence')}}>Attendence</Button> */}
+          <Button
+            variant="filled"
+            onClick={() => {
+              navigate("/admin");
+            }}
+          >
+            Create QR Code
+          </Button>
+          {/* <Button
+            variant="filled"
+            onClick={() => {
+              navigate("/admin-attendence");
+            }}
+          >
+            Attendence
+          </Button> */}
           <Button variant="filled" onClick={logout}>
             Logout
           </Button>

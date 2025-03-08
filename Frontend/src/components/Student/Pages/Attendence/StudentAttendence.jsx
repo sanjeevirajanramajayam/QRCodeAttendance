@@ -27,7 +27,7 @@ function StudentAttendence() {
   function getPeriod(timestamp) {
     console.log(timestamp.toString());
     let referenceTimestamp = new Date();
-    referenceTimestamp.setHours(9, 0, 0, 0);
+    referenceTimestamp.setHours(11, 20, 0, 0);
 
     let currentTimestamp = new Date(timestamp);
     let differenceInMillis = currentTimestamp - referenceTimestamp;

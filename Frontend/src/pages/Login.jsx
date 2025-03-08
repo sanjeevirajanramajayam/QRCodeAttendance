@@ -88,6 +88,7 @@ function Login() {
               sx={{ mb: 2 }}
               fullWidth
               value={username}
+              autoComplete='off'
               onChange={handleUsernameChange}
               error={error ? error : undefined}
             />
@@ -95,6 +96,8 @@ function Login() {
               placeholder="Enter password"
               fullWidth
               value={password}
+              autoComplete='off'
+              type="password"
               onChange={handlePasswordChange}
               error={error ? error : undefined}
             />

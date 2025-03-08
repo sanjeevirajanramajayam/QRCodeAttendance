@@ -12,13 +12,14 @@ function StudentAttendence() {
   const [data, setData] = useState({ sessions: [] });
 
   useEffect(() => {
-    console.log(localStorage.getItem("sessionid"))
+    console.log(localStorage.getItem("sessionid"));
     axios
       .post("http://localhost:5000/get-students-by-session", {
         session_id: localStorage.getItem("sessionid"),
       })
       .then((response) => {
         setData(response.data);
+        console.log(response.data);
         console.log(response.data.sessions);
         console.log(response.data.timestamps);
       });
@@ -43,7 +44,7 @@ function StudentAttendence() {
         <Table sx={{ minWidth: 500 }} aria-label="simple table">
           <TableHead>
             <TableRow>
-              <TableCell>Faculty</TableCell>
+              <TableCell>Students</TableCell>
               <TableCell align="right">Course Code</TableCell>
               <TableCell align="right">TimeStamp</TableCell>
               <TableCell align="right">Period</TableCell>

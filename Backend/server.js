@@ -27,88 +27,99 @@ db.connect((err) => {
   console.log("Connected to MySQL database");
 });
 
+const jwt = require("jsonwebtoken");
+
+const JWT_SECRET = "your-secret-key"; // Replace with a strong secret
+
 app.post("/create-session", async (req, res) => {
   const { facultyId, courseName } = req.body;
   const sessionId = `session-${Date.now()}`;
 
   try {
-    const qrCodeDataUrl = await QRCode.toDataURL(sessionId);
+    const token = jwt.sign({ sessionId, facultyId, courseName }, JWT_SECRET, {
+      expiresIn: "30s",
+    });
+
+    const qrCodeDataUrl = await QRCode.toDataURL(token);
 
     const query =
       "INSERT INTO sessions (session_id, faculty_id, course_name, qr_code_url) VALUES (?, ?, ?, ?)";
     db.query(
       query,
-      [sessionId, facultyId, courseName, qrCodeDataUrl],
+      [sessionId, facultyId, courseName, token],
       (err, result) => {
         if (err) {
           console.error("Error creating session:", err);
-          return res.status(500).json({
-            message: "Failed to create session",
-          });
+          return res.status(500).json({ message: "Failed to create session" });
         }
 
         res.status(200).json({
           message: "Session created successfully",
           sessionId,
           qrCode: qrCodeDataUrl,
+          token,
         });
       }
     );
   } catch (error) {
     console.error("Error generating QR code:", error);
-    res.status(500).json({
-      message: "Failed to generate QR code",
-    });
+    res.status(500).json({ message: "Failed to generate QR code" });
   }
 });
 
 app.post("/mark-attendance", (req, res) => {
-  const { sessionId, studentId } = req.body;
+  const { token, studentId } = req.body; // Expecting token instead of sessionId
   const timestamp = new Date();
 
-  if (!sessionId || !studentId) {
+  if (!token || !studentId) {
     return res.status(400).json({
-      message: "Session ID and Student ID are required",
+      message: "Token and Student ID are required",
     });
   }
 
-  const checkSessionQuery = "SELECT * FROM sessions WHERE session_id = ?";
-  db.query(checkSessionQuery, [sessionId], (err, results) => {
-    if (err) {
-      console.error("Error checking session:", err);
-      return res.status(500).json({
-        message: "Error checking session",
-      });
-    }
+  try {
+    const decoded = jwt.verify(token, JWT_SECRET);
+    const { sessionId, facultyId, courseName } = decoded;
 
-    if (results.length === 0) {
-      return res.status(404).json({
-        message: "Session not found",
-      });
-    }
+    const checkSessionQuery = "SELECT * FROM sessions WHERE session_id = ?";
+    db.query(checkSessionQuery, [sessionId], (err, results) => {
+      if (err) {
+        console.error("Error checking session:", err);
+        return res.status(500).json({ message: "Error checking session" });
+      }
 
-    const insertAttendanceQuery =
-      "INSERT INTO attendance (session_id, student_id, timestamp) VALUES (?, ?, ?)";
-    db.query(
-      insertAttendanceQuery,
-      [sessionId, studentId, timestamp],
-      (err, result) => {
-        if (err) {
-          console.error("Error marking attendance:", err);
-          return res.status(500).json({
-            message: "Failed to mark attendance",
+      if (results.length === 0) {
+        return res.status(404).json({ message: "Session not found" });
+      }
+
+      const insertAttendanceQuery =
+        "INSERT INTO attendance (session_id, student_id, timestamp) VALUES (?, ?, ?)";
+      db.query(
+        insertAttendanceQuery,
+        [sessionId, studentId, timestamp],
+        (err, result) => {
+          if (err) {
+            console.error("Error marking attendance:", err);
+            return res
+              .status(500)
+              .json({ message: "Failed to mark attendance" });
+          }
+
+          res.status(200).json({
+            message: "Attendance marked successfully",
+            studentId,
+            sessionId,
+            facultyId,
+            courseName,
+            timestamp,
           });
         }
-
-        res.status(200).json({
-          message: "Attendance marked successfully",
-          studentId,
-          sessionId,
-          timestamp,
-        });
-      }
-    );
-  });
+      );
+    });
+  } catch (error) {
+    console.error("Invalid or expired token:", error);
+    res.status(401).json({ message: "Invalid or expired token" });
+  }
 });
 
 app.post("/login", (req, res) => {
@@ -194,7 +205,7 @@ app.post("/get-students-by-session", (req, res) => {
   const { session_id } = req.body;
 
   const sessionQuery =
-    "SELECT faculty_id, course_code FROM sessions WHERE id = ?";
+    "SELECT faculty_id, course_name FROM sessions WHERE session_id = ?";
 
   db.query(sessionQuery, [session_id], (err, sessionResult) => {
     if (err) {
@@ -207,8 +218,8 @@ app.post("/get-students-by-session", (req, res) => {
     if (sessionResult.length === 0) {
       return res.status(404).json({ message: "Session not found" });
     }
-
-    const { faculty_id, course_code } = sessionResult[0];
+    console.log(sessionResult);
+    const { faculty_id, course_name } = sessionResult[0];
 
     const attendanceQuery = "SELECT * FROM attendance WHERE session_id = ?";
 
