@@ -19,6 +19,7 @@ function AdminHome() {
       );
       const qrCodeDataUrl = response.data.qrCode;
       setSessionId(response.data.sessionId);
+      localStorage.setItem('sessionid', response.data.sessionId)
       setQrImage(qrCodeDataUrl);
       setIsSessionCreated(true);
     } catch (error) {

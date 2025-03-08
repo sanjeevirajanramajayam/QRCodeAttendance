@@ -248,6 +248,69 @@ app.post("/get-attendence", (req, res) => {
   });
 });
 
+app.post("/get-students-by-session", (req, res) => {
+  const { session_id } = req.body;
+
+  const attendanceQuery = "SELECT * FROM attendance WHERE session_id = ?";
+
+  db.query(attendanceQuery, [session_id], (err, attendanceResults) => {
+    if (err) {
+      console.error("Error fetching attendance:", err);
+      return res.status(500).json({
+        message: "Failed to fetch attendance",
+      });
+    }
+
+    if (attendanceResults.length === 0) {
+      return res.status(404).json({
+        message: "No attendance records found for this session",
+      });
+    }
+
+    const studentIds = attendanceResults.map(record => record.student_id);
+
+    const userQuery = "SELECT id, username FROM users WHERE id IN (?)";
+
+    db.query(userQuery, [studentIds], (err, userResults) => {
+      if (err) {
+        console.error("Error fetching student details:", err);
+        return res.status(500).json({
+          message: "Failed to fetch student details",
+        });
+      }
+
+      if (userResults.length === 0) {
+        return res.status(404).json({
+          message: "No student records found for this session",
+        });
+      }
+
+       
+      const sessionDetails = attendanceResults.map((attendance, index) => {
+        return {
+          session_id: attendance.session_id,
+          faculty_id: "F001", 
+          course_name: "Course 101",
+          qr_code_url: "data:image/png;base64, ...",  
+        };
+      });
+
+     
+      const response = {
+        sessions: sessionDetails,
+        timestamps: attendanceResults.map(att => att.timestamp),
+        username: userResults[0].username, 
+      };
+
+      const studentNames = userResults.map(user => user.username);
+      response.sessions.forEach((session, index) => {
+        session.students = studentNames;
+      });
+
+      res.status(200).json(response);
+    });
+  });
+});
 
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);

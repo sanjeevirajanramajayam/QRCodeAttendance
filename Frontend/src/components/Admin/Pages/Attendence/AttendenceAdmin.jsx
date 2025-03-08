@@ -7,15 +7,15 @@ import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
 import axios from "axios";
-import AdminNavBar from "../../NavBar/AdminNavBar";
 
-function AdminAttendence() {
+function StudentAttendence() {
   const [data, setData] = useState({ sessions: [] });
 
   useEffect(() => {
+    console.log(localStorage.getItem("sessionid"))
     axios
-      .post("http://localhost:5000/get-attendence", {
-        id: localStorage.getItem("id"),
+      .post("http://localhost:5000/get-students-by-session", {
+        session_id: localStorage.getItem("sessionid"),
       })
       .then((response) => {
         setData(response.data);
@@ -39,8 +39,6 @@ function AdminAttendence() {
 
   return (
     <>
-      <AdminNavBar />
-
       <TableContainer component={Paper} style={{ marginTop: 24 }}>
         <Table sx={{ minWidth: 500 }} aria-label="simple table">
           <TableHead>
@@ -73,4 +71,4 @@ function AdminAttendence() {
   );
 }
 
-export default AdminAttendence;
+export default StudentAttendence;
