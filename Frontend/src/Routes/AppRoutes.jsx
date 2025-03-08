@@ -6,6 +6,7 @@ import StudentHome from "../components/Student/Pages/Home/StudentHome";
 import AdminHome from "../components/Admin/Pages/Home/AdminHome";
 import ProtectedRoutes from "./ProtectedRoutes";
 import StudentAttendence from "../components/Student/Pages/Attendence/StudentAttendence";
+import AttendenceAdmin from "../components/Admin/Pages/Attendence/AttendenceAdmin";
 function AppRoute() {
   return (
     <Routes>
@@ -32,6 +33,14 @@ function AppRoute() {
         element={
           <ProtectedRoutes allowedRole="user">
             <StudentAttendence />
+          </ProtectedRoutes>
+        }
+      />
+      <Route
+        path="/admin-attendence"
+        element={
+          <ProtectedRoutes allowedRole="admin">
+            <AttendenceAdmin />
           </ProtectedRoutes>
         }
       />

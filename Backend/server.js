@@ -28,7 +28,9 @@ db.connect((err) => {
 });
 
 app.get("/generate-qr/:studentId", async (req, res) => {
-  const { studentId } = req.params;
+  const {
+    studentId
+  } = req.params;
   try {
     const qrCodeDataUrl = await QRCode.toDataURL(studentId);
     res.json({
@@ -71,7 +73,10 @@ app.get("/generate-qr/:studentId", async (req, res) => {
 // });
 
 app.post("/create-session", async (req, res) => {
-  const { facultyId, courseName } = req.body;
+  const {
+    facultyId,
+    courseName
+  } = req.body;
   const sessionId = `session-${Date.now()}`;
 
   try {
@@ -106,7 +111,10 @@ app.post("/create-session", async (req, res) => {
 });
 
 app.post("/mark-attendance", (req, res) => {
-  const { sessionId, studentId } = req.body;
+  const {
+    sessionId,
+    studentId
+  } = req.body;
   const timestamp = new Date();
 
   if (!sessionId || !studentId) {
@@ -155,7 +163,10 @@ app.post("/mark-attendance", (req, res) => {
 });
 
 app.post("/login", (req, res) => {
-  const { username, password } = req.body;
+  const {
+    username,
+    password
+  } = req.body;
   if (!username || !password) {
     return res.status(400).json({
       message: "Username and Password are required",
@@ -173,15 +184,29 @@ app.post("/login", (req, res) => {
       });
     }
 
-    res.status(200).json({ result });
+    res.status(200).json({
+      result
+    });
   });
 });
 
 app.post("/get-attendence", (req, res) => {
-    const { id } = req.body;
-  
+  const {
+    id
+  } = req.body;
+
+  const selectQuery = "SELECT * FROM users WHERE id = ?"
+
+  db.query(selectQuery, [id], (err, selectResults) => {
+    if (err) {
+      console.error("Error fetching attendance:", err);
+      return res.status(500).json({
+        message: "Failed to fetch attendance",
+      });
+    }
+
     const query = "SELECT * FROM attendance WHERE student_id = ?";
-  
+
     db.query(query, [id], (err, attendanceResults) => {
       if (err) {
         console.error("Error fetching attendance:", err);
@@ -189,18 +214,22 @@ app.post("/get-attendence", (req, res) => {
           message: "Failed to fetch attendance",
         });
       }
-  
+
       if (attendanceResults.length === 0) {
         return res.status(404).json({
           message: "No attendance records found",
         });
       }
-  
+
       const sessionIds = attendanceResults.map(record => record.session_id);
       const timestamps = attendanceResults.map(record => record.timestamp);
-  
+
+      console.log(attendanceResults);
+      console.log(sessionIds);
+      console.log(timestamps);
+
       const sessionQuery = `SELECT * FROM sessions WHERE session_id IN (${sessionIds.map(() => '?').join(',')})`;
-  
+
       db.query(sessionQuery, sessionIds, (err, sessionResults) => {
         if (err) {
           console.error("Error fetching session details:", err);
@@ -208,12 +237,17 @@ app.post("/get-attendence", (req, res) => {
             message: "Failed to fetch session details",
           });
         }
-  
-        res.status(200).json({ sessions: sessionResults, timestamps });
+
+        res.status(200).json({
+          sessions: sessionResults,
+          timestamps,
+          username: selectResults[0].username
+        });
       });
     });
   });
-  
+});
+
 
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);

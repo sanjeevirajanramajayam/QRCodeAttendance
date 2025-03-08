@@ -27,12 +27,12 @@ function AdminNavBar() {
     navigate("/");
   }
   return (
-    <AppBar>
+    <AppBar position="sticky">
       <StyledToolbar>
         <Typography>Admin Dashboard</Typography>
         <Content>
-          <Button variant="filled">Create QR Code</Button>
-          <Button variant="filled">Attendence</Button>
+          <Button variant="filled" onClick={() => {navigate('/admin')}}>Create QR Code</Button>
+          <Button variant="filled" onClick={() => {navigate('/admin-attendence')}}>Attendence</Button>
           <Button variant="filled" onClick={logout}>
             Logout
           </Button>
