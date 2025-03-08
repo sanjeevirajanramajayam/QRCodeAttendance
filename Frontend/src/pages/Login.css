@@ -1,10 +1,10 @@
-.login {
+/* .login {
     display: flex;
     justify-content: center;
     align-items: center;
     flex-direction: column;
     margin-top: 270px;
-    background: rgba(255, 255, 255, 0.675);
+    background: rgba(255, 255, 255, 0.059);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
     border-radius: 10px;
@@ -23,7 +23,7 @@
       margin-left: 35%;
     }
   }
-  
+   */
   
   @media (max-width: 768px) {
     .login {

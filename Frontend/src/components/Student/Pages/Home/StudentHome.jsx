@@ -1,66 +1,22 @@
-// import React, { useState } from "react";
-// import axios from "axios";
-// import { Scanner } from "@yudiel/react-qr-scanner";
-// function StudentHome() {
-//     const [scanResult, setScanResult] = useState(null);
-//     const [studentId, setStudentId] = useState('');
-//     const [attendanceStatus, setAttendanceStatus] = useState('');
-//     const [qrImage, setQrImage] = useState(null); // State to store the QR image data
-
-
-//     const generateQRCode = async () => {
-//         try {
-//             const response = await axios.get(
-//                 `http://localhost:5000/generate-qr/${studentId}`
-//             );
-//             const qrImage = response.data.qrCode; // Get the base64-encoded QR code
-//             setQrImage(qrImage); // Store the QR code image data
-//         } catch (error) {
-//             console.error("Error generating QR code", error);
-//         }
-//     };
-
-//     return (
-//         <>
-//             <div>
-//                 <h1>QR Code Attendance System</h1>
-
-//                 <div>
-//                     <h2>Generate QR Code for Student</h2>
-//                     <input
-//                         type="text"
-//                         value={studentId}
-//                         onChange={(e) => setStudentId(e.target.value)}
-//                         placeholder="Enter Student ID"
-//                     />
-//                     <button onClick={generateQRCode}>Generate QR Code</button>
-//                 </div>
-
-//                 {/* Display generated QR Code */}
-//                 {qrImage && (
-//                     <div>
-//                         <h3>Generated QR Code:</h3>
-//                         <img src={qrImage} alt="Generated QR Code" />
-//                     </div>
-//                 )}
-//             </div>
-//         </>
-//     );
-// }
-
-// export default StudentHome;
-
-import {useState} from 'react'
-import axios from 'axios';
+import { useState } from "react";
+import axios from "axios";
 import { Scanner } from "@yudiel/react-qr-scanner";
-import StudentNavBar from '../../NavBar/StudentNavBar'
+import StudentNavBar from "../../NavBar/StudentNavBar";
+import {
+  Container,
+  Typography,
+  Box,
+  Paper,
+  Alert,
+  AlertTitle,
+} from "@mui/material";
 
 function StudentHome() {
   const [scanResult, setScanResult] = useState(null);
-  const [studentId, setStudentId] = useState('');
-  const [attendanceStatus, setAttendanceStatus] = useState('');
+  const [studentId, setStudentId] = useState("");
+  const [attendanceStatus, setAttendanceStatus] = useState("");
   const [qrImage, setQrImage] = useState(null);
-  const [sessionId, setSessionId] = useState('');
+  const [sessionId, setSessionId] = useState("");
   const [isSessionCreated, setIsSessionCreated] = useState(false);
 
   const handleScan = (data) => {
@@ -76,41 +32,89 @@ function StudentHome() {
 
   const markAttendance = async (sessionId) => {
     try {
-      const studentData = { sessionId, studentId: 123223 };
-      console.log(studentId)
-      const response = await axios.post('http://localhost:5000/mark-attendance', studentData);
+      const studentData = { sessionId, studentId: localStorage.getItem("id") };
+      console.log(studentId);
+      const response = await axios.post(
+        "http://localhost:5000/mark-attendance",
+        studentData
+      );
       setAttendanceStatus(response.data.message);
     } catch (error) {
       console.error("Error marking attendance", error);
-      setAttendanceStatus('Failed to mark attendance');
+      setAttendanceStatus("Failed to mark attendance");
     }
   };
 
   return (
     <>
       <StudentNavBar />
-      <div>
-        <h1>QR Code Attendance System</h1>
+      <Box sx={{ margin: 5 }}>
+        <Container maxWidth="sm">
+          <Paper
+            elevation={10}
+            sx={{
+              padding: 4,
+              textAlign: "center",
+              borderRadius: 3,
+              backgroundColor: "#fff",
+            }}
+          >
+            <Typography variant="h4" fontWeight="bold" gutterBottom>
+              QR Code Attendance System
+            </Typography>
 
-        <div>
-          <h2>Scan QR Code to Mark Attendance</h2>
-          <Scanner
-            delay={300}
-            styles={{ container: { width: '50%' } }}
-            onError={handleError}
-            onScan={handleScan}
-          />
-        </div>
+            <Typography sx={{ color: "#555", mb: 2 }}>
+              Scan QR Code to Mark Attendance
+            </Typography>
 
-        {scanResult && (
-          <div>
-            <h3>Attendance Marked for Session ID: {scanResult}</h3>
-            <p>{attendanceStatus}</p>
-          </div>
-        )}
-      </div>
+            {/* Scanner */}
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                my: 2,
+              }}
+            >
+              <Scanner
+                delay={300}
+                style={{ width: "100%" }}
+                onError={handleError}
+                onScan={handleScan}
+                styles={{ container: { width: "65%" } }}
+              />
+            </Box>
+
+            {/* Attendance Confirmation */}
+            {scanResult && (
+              <Alert
+                severity="success"
+                variant="filled"
+                sx={{
+                  mt: 3,
+                  p: 2,
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  textAlign: "center",
+                }}
+              >
+                <AlertTitle sx={{ fontSize: "1.2rem", fontWeight: "bold" }}>
+                  Attendance Marked!
+                </AlertTitle>
+                <Typography variant="body1" sx={{ fontSize: "1rem" }}>
+                  <strong>Session ID:</strong> {scanResult}
+                </Typography>
+                <Typography variant="body1" sx={{ fontSize: "1rem" }}>
+                  {attendanceStatus}
+                </Typography>
+              </Alert>
+            )}
+          </Paper>
+        </Container>
+      </Box>
     </>
   );
 }
 
-export default StudentHome
+export default StudentHome;

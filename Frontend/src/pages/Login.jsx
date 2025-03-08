@@ -37,10 +37,11 @@ function Login() {
       setError(true);
     } else {
       localStorage.setItem("role", response.data.result[0].role);
+      localStorage.setItem("id", response.data.result[0].id);
       if (localStorage.getItem("role") == "admin") {
         navigate("/admin");
       } else {
-        navigate("/studenthome");
+        navigate("/student-home");
       }
     }
   }
@@ -69,7 +70,7 @@ function Login() {
         }}
       >
         <Container maxWidth="xs">
-          <Paper elevation={10} sx={{ padding: 2, mx: "auto" }} square={false}>
+          <Paper elevation={20} sx={{ padding: 2, mx: "auto" }} square={false}>
             <Avatar
               sx={{ textAlign: "center", bgcolor: "#BF40BF", mx: "auto" }}
             >
